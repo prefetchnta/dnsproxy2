@@ -87,5 +87,5 @@ LOCAL_CFLAGS	:= -DHAVE_SYS_UIO_H \
 
 build:
 	arm-linux-androideabi-gcc -c -march=armv7-a -O2 -fPIC -Wall -fshort-wchar -ffunction-sections -fdata-sections $(LOCAL_CFLAGS) $(LOCAL_SRC_FILES)
-	arm-linux-androideabi-gcc -o $(LOCAL_MODULE) -fPIC -Wl,--gc-sections -Wl,--no-wchar-size-warning -L "%NDK_LIB%" $(LOCAL_OBJ_FILES) -lc
+	arm-linux-androideabi-gcc -o $(LOCAL_MODULE) -static -fPIC -Wl,--gc-sections -Wl,--no-wchar-size-warning -L "%NDK_LIB%" -L "%STL_LIB%" $(LOCAL_OBJ_FILES) -lsupc++ -lc
 	arm-linux-androideabi-strip --strip-unneeded $(LOCAL_MODULE)
