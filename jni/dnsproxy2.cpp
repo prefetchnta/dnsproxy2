@@ -83,7 +83,7 @@ static void setup_resolver(const char *server)
         }
         memset(ip, 0, sz + 1);
         rewind(fp);
-        if (fread(ip, 1, sz, fp) != sz) {
+        if (fread(ip, 1, sz, fp) != (size_t)sz) {
             ALOGE("fread() failure\n");
             fclose(fp);
             free(ip);
@@ -102,7 +102,7 @@ static void setup_resolver(const char *server)
             if (*tmp++ == '|')
                 cnt++;
         }
-        lst = (char**)malloc(cnt, char*);
+        lst = (char**)malloc(cnt * sizeof(char*));
         if (lst == NULL) {
             ALOGE("malloc() failure\n");
             free(ip);
