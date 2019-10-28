@@ -1,6 +1,3 @@
-LOCAL_PATH := $(call my-dir)
-include $(CLEAR_VARS)
-
 LOCAL_MODULE	:= dnsproxy2
 LOCAL_SRC_FILES	:= dnsproxy2.cpp \
 	FrameworkListener.cpp \
@@ -40,13 +37,55 @@ LOCAL_SRC_FILES	:= dnsproxy2.cpp \
 	nameser/ns_samedomain.c \
 	nameser/ns_ttl.c
 
+LOCAL_OBJ_FILES	:= dnsproxy2.o \
+	FrameworkListener.o \
+	FrameworkCommand.o \
+	DnsProxyListener.o \
+	SocketListener.o \
+	SocketClient.o \
+	NetdCommand.o \
+	gethnamaddr.o \
+	getaddrinfo.o \
+	getnameinfo.o \
+	getservbyname.o \
+	getservbyport.o \
+	getservent.o \
+	nsdispatch.o \
+	logd_write.o \
+	atomic.o \
+	__dn_comp.o \
+	herror.o \
+	res_cache.o \
+	__res_close.o \
+	res_compat.o \
+	res_comp.o \
+	res_data.o \
+	res_debug.o \
+	res_init.o \
+	res_mkquery.o \
+	res_query.o \
+	__res_send.o \
+	res_send.o \
+	res_state.o \
+	libc_logging.o \
+	ns_name.o \
+	ns_netint.o \
+	ns_parse.o \
+	ns_print.o \
+	ns_samedomain.o \
+	ns_ttl.o
+
 LOCAL_CFLAGS	:= -DHAVE_SYS_UIO_H \
 	-DANDROID_SMP=1 \
 	-DANDROID_CHANGES \
 	-D_LIBC \
-	-I$(LOCAL_PATH) \
-	-I$(LOCAL_PATH)/resolv \
-	-I$(LOCAL_PATH)/private \
+	-I. \
+	-I./resolv \
+	-I./private \
+	-I "%NDK_INC%" \
 	-include netdb-private.h
 
-include $(BUILD_EXECUTABLE)
+build:
+	arm-linux-androideabi-gcc -c -march=armv7-a -O2 -fPIC -Wall -fshort-wchar -ffunction-sections -fdata-sections $(LOCAL_CFLAGS) $(LOCAL_SRC_FILES)
+	arm-linux-androideabi-gcc -o $(LOCAL_MODULE) -fPIC -Wl,--gc-sections -Wl,--no-wchar-size-warning -L "%NDK_LIB%" $(LOCAL_OBJ_FILES) -lc
+	arm-linux-androideabi-strip --strip-unneeded $(LOCAL_MODULE)
