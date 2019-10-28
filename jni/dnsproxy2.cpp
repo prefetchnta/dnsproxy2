@@ -54,19 +54,20 @@ static void handle_signal(int sig)
 
 static void setup_resolver(const char *server)
 {
-    int     ii;
     long    sz;
     char*   ip;
-    char*   pt;
     FILE*   fp;
-    char*   ls[5];
 
     fp = fopen(server, "rb");
-    if (fp == NULL) {
+    if (fp == NULL)
+    {
+        /* IP address */
         _resolv_set_default_iface("eth0");
         _resolv_set_nameservers_for_iface("eth0", (char **)&server, 1, "");
     }
-    else {
+    else
+    {
+        /* load DNS file */
         fseek(fp, 0, SEEK_END);
         sz = ftell(fp);
         if (sz <= 16) {
@@ -82,19 +83,42 @@ static void setup_resolver(const char *server)
         }
         memset(ip, 0, sz + 1);
         rewind(fp);
-        fread(ip, sz, 1, fp);
+        if (fread(ip, 1, sz, fp) != sz) {
+            ALOGE("fread() failure\n");
+            fclose(fp);
+            free(ip);
+            exit(1);
+        }
         fclose(fp);
-        ii = 0;
-        ls[ii++] = pt = ip;
-        while (*pt != 0 && ii < 5) {
-            if (*pt == '|') {
-                *pt = 0;
-                ls[ii++] = pt + 1;
+
+        char*   tmp;
+        char**  lst;
+        size_t  idx = 1;
+        size_t  cnt = 1;
+
+        /* split IP strings */
+        tmp = ip;
+        while (*tmp != 0) {
+            if (*tmp++ == '|')
+                cnt++;
+        }
+        lst = (char**)malloc(cnt, char*);
+        if (lst == NULL) {
+            ALOGE("malloc() failure\n");
+            free(ip);
+            exit(1);
+        }
+        lst[0] = tmp = ip;
+        while (*tmp != 0) {
+            if (*tmp == '|') {
+                *tmp = 0;
+                lst[idx++] = tmp + 1;
             }
-            pt++;
+            tmp++;
         }
         _resolv_set_default_iface("eth0");
-        _resolv_set_nameservers_for_iface("eth0", ls, ii, "");
+        _resolv_set_nameservers_for_iface("eth0", lst, cnt, "");
+        free(lst);
         free(ip);
     }
 }
