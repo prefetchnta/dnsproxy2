@@ -1,6 +1,0 @@
-#!/system/bin/sh
-
-# add your favorite server here
-DNS=8.8.8.8
-
-/system/xbin/dnsproxy2 -w $DNS &
