@@ -54,8 +54,49 @@ static void handle_signal(int sig)
 
 static void setup_resolver(const char *server)
 {
-    _resolv_set_default_iface("eth0");
-    _resolv_set_nameservers_for_iface("eth0", (char **)&server, 1, "");
+    int     ii;
+    long    sz;
+    char*   ip;
+    char*   pt;
+    FILE*   fp;
+    char*   ls[5];
+
+    fp = fopen(server, "rb");
+    if (fp == NULL) {
+        _resolv_set_default_iface("eth0");
+        _resolv_set_nameservers_for_iface("eth0", (char **)&server, 1, "");
+    }
+    else {
+        fseek(fp, 0, SEEK_END);
+        sz = ftell(fp);
+        if (sz <= 16) {
+            ALOGE("invalid dns file (%s)\n", server);
+            fclose(fp);
+            exit(1);
+        }
+        ip = (char*)malloc(sz + 1);
+        if (ip == NULL) {
+            ALOGE("malloc() failure\n");
+            fclose(fp);
+            exit(1);
+        }
+        memset(ip, 0, sz + 1);
+        rewind(fp);
+        fread(ip, sz, 1, fp);
+        fclose(fp);
+        ii = 0;
+        ls[ii++] = pt = ip;
+        while (*pt != 0 && ii < 5) {
+            if (*pt == '|') {
+                *pt = 0;
+                ls[ii++] = pt + 1;
+            }
+            pt++;
+        }
+        _resolv_set_default_iface("eth0");
+        _resolv_set_nameservers_for_iface("eth0", ls, ii, "");
+        free(ip);
+    }
 }
 
 static void setup_listener(int do_wait)
