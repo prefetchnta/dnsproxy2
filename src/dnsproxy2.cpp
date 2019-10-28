@@ -16,6 +16,7 @@
  */
 
 #include <errno.h>
+#include <ctype.h>
 #include <grp.h>
 #include <signal.h>
 #include <string.h>
@@ -50,6 +51,22 @@ static void handle_signal(int sig)
         rename(SOCKPATH ".bak", SOCKPATH);
     }
     exit(0);
+}
+
+static char* str_trim (char *str)
+{
+    size_t  len;
+
+    while (isspace(*str))
+        str++;
+    len = strlen(str);
+    while (len != 0) {
+        len--;
+        if (!isspace(str[len]))
+            break;
+        str[len] = 0;
+    }
+    return (str);
 }
 
 static void setup_resolver(const char *server)
@@ -116,6 +133,8 @@ static void setup_resolver(const char *server)
             }
             tmp++;
         }
+        for (idx = 0; idx < cnt; idx++)
+            lst[idx] = str_trim(lst[idx]);
         _resolv_set_default_iface("eth0");
         _resolv_set_nameservers_for_iface("eth0", lst, cnt, "");
         free(lst);
