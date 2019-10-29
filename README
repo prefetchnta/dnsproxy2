@@ -4,11 +4,18 @@ This currently allows the user to manually override the DNS server IP,
 and it sets the correct UID on outbound requests so they can be filtered
 via iptables / AFWall+ / DroidWall / etc.
 
+Support load DNS addresses from file:
+
+    dnsproxy2 -w dns_list_file.ext &
+
+DNS list file format:
+
+    IP1 | IP2 | ...
 
 Build instructions:
 
-1) Install NDK under %DEV_ROOT%\android\ndk
+1) Install NDK r15c under %DEV_ROOT%\android\ndk
 
-2) Run src/ndk-arm7.bat
+2) Run src/build.bat
 
-3) Binaries are under src/.
+3) Binaries are under bin/. (Precompiled binaries are under there.)
