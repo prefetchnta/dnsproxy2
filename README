@@ -18,4 +18,4 @@ Build instructions:
 
 2) Run src/build.bat
 
-3) Binaries are under bin/. (Precompiled binaries are under there.)
+3) Binaries are under bin/. (Precompiled binaries are provided.)
