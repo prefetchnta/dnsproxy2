@@ -1,5 +1,5 @@
-LOCAL_MODULE	:= dnsproxy2
-LOCAL_SRC_FILES	:= dnsproxy2.cpp \
+MODULE	:= dnsproxy2
+SRC_FILES	:= dnsproxy2.cpp \
 	FrameworkListener.cpp \
 	FrameworkCommand.cpp \
 	DnsProxyListener.cpp \
@@ -37,7 +37,7 @@ LOCAL_SRC_FILES	:= dnsproxy2.cpp \
 	nameser/ns_samedomain.c \
 	nameser/ns_ttl.c
 
-LOCAL_OBJ_FILES	:= dnsproxy2.o \
+OBJ_FILES	:= dnsproxy2.o \
 	FrameworkListener.o \
 	FrameworkCommand.o \
 	DnsProxyListener.o \
@@ -75,7 +75,10 @@ LOCAL_OBJ_FILES	:= dnsproxy2.o \
 	ns_samedomain.o \
 	ns_ttl.o
 
-LOCAL_CFLAGS	:= -DHAVE_SYS_UIO_H \
+CFLAGS	:= -O2 -fPIC \
+	-ffunction-sections \
+	-fdata-sections \
+	-DHAVE_SYS_UIO_H \
 	-DANDROID_SMP=1 \
 	-DANDROID_CHANGES \
 	-D_LIBC \
@@ -85,7 +88,12 @@ LOCAL_CFLAGS	:= -DHAVE_SYS_UIO_H \
 	-I "%NDK_INC%" \
 	-include netdb-private.h
 
+LFLAGS	:= -static -fPIC \
+	-Wl,--gc-sections \
+	-L "%NDK_LIB%" \
+	-L "%STL_LIB%"
+
 build:
-	arm-linux-androideabi-gcc -c -march=armv7-a -O2 -fPIC -Wall -fshort-wchar -ffunction-sections -fdata-sections $(LOCAL_CFLAGS) $(LOCAL_SRC_FILES)
-	arm-linux-androideabi-gcc -o $(LOCAL_MODULE) -static -fPIC -Wl,--gc-sections -Wl,--no-wchar-size-warning -L "%NDK_LIB%" -L "%STL_LIB%" $(LOCAL_OBJ_FILES) -lsupc++ -lc
-	arm-linux-androideabi-strip --strip-unneeded $(LOCAL_MODULE)
+	$(CC) $(CFLAGS) -c $(SRC_FILES)
+	$(CC) $(LFLAGS) -o $(MODULE) $(OBJ_FILES) -lsupc++ -lc
+	$(SP) --strip-unneeded $(MODULE)
